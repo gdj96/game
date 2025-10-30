@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root{
+            --bg:#f6f9fb;
+            --card:#ffffff;
+            --accent:#2b7cff;
+            --danger:#e74c3c;
+            --muted:#6b7280;
+            --glass: rgba(255,255,255,0.6);
+            --radius:14px;
+            --max-width:980px;
+        }
+
+        /* 전체 페이지 배경과 중앙 컨테이너 */
+        html,body{
+            height:100%;
+            margin:0;
+            font-family: "Inter", "Noto Sans KR", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: linear-gradient(180deg, #e9f1ff 0%, var(--bg) 100%);
+            color:#111827;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+        }
+
+        #div1{
+            box-sizing:border-box;
+            width:min(100%, var(--max-width));
+            margin:48px auto;
+            padding:34px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.85), var(--glass));
+            border-radius: var(--radius);
+            border:1px solid rgba(43,124,255,0.08);
+            box-shadow: 0 10px 30px rgba(18, 52, 86, 0.06);
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:18px;
+            text-align:center;
+            min-height:320px;
+        }
+
+        /* 제목 스타일 */
+        #h1_1, #h1_2 {
+            margin:0;
+            line-height:1.1;
+            font-weight:700;
+            letter-spacing:-0.02em;
+            padding:6px 12px;
+            border-radius:10px;
+        }
+
+        #h1_1{
+            color:var(--accent);
+            background: linear-gradient(90deg, rgba(43,124,255,0.08), rgba(43,124,255,0.03));
+            border: 1px solid rgba(43,124,255,0.09);
+            box-shadow: 0 6px 18px rgba(43,124,255,0.06);
+        }
+
+        #h1_2{
+            color:var(--danger);
+            background: linear-gradient(90deg, rgba(231,76,60,0.06), rgba(231,76,60,0.02));
+            border: 1px solid rgba(231,76,60,0.08);
+            box-shadow: 0 6px 18px rgba(231,76,60,0.04);
+        }
+
+        /* 정보 텍스트 */
+        h3 {
+            margin:0;
+            color:#0f172a;
+            font-weight:500;
+            line-height:1.5;
+        }
+        h3 span {
+            display:inline-block;
+            min-width:120px;
+            font-weight:600;
+            color:#0b1220;
+        }
+
+        /* 버튼 공통 */
+        .result-btn{
+            margin-top:8px;
+            padding:10px 18px;
+            border-radius:10px;
+            border:none;
+            font-size:16px;
+            cursor:pointer;
+            transition:transform .12s ease, box-shadow .12s ease;
+            box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+        }
+        .result-btn:active{ transform:translateY(1px) }
+
+        /* 버튼별 색상 */
+        #next {
+            background: linear-gradient(90deg, var(--accent), #1f6fe0);
+            color:white;
+        }
+        #home {
+            background: white;
+            color: #0f172a;
+            border:1px solid rgba(15,23,42,0.06);
+        }
+        #prev {
+            background: linear-gradient(90deg,#f3f4f6,#fff);
+            color:var(--accent);
+            border:1px solid rgba(43,124,255,0.08);
+        }
+
+        /* 버튼 레이아웃 컨테이너 (동적 생성된 버튼에 적용) */
+        .btn-row{
+            display:flex;
+            gap:12px;
+            margin-top:12px;
+            flex-wrap:wrap;
+            justify-content:center;
+        }
+
+        /* 반응형 */
+        @media (max-width:640px){
+            #div1{ padding:20px; margin:20px; border-radius:12px; min-height:300px; }
+            h3{ font-size:15px }
+            .result-btn{ width:100%; font-size:16px; padding:12px 14px }
+            .btn-row{ flex-direction:column; gap:10px; width:100% }
+        }
+    </style>
+
+</head>
+<body>
+    <div id="div1"></div>
+    <script>
+        let length = localStorage.getItem("length")
+        let userId = localStorage.getItem("userId")
+        let count = localStorage.getItem("count")
+        let stage = localStorage.getItem("stage")
+        let overmsg = ["자르기에는 영 소질이 없군","다른 일을 알아보는건 어떤가?","불을 꺼도 내가 더 잘 썰겠군"]
+        let clearmsg = ["호오.. 생각보다 잘 써는구만","더 빠른 샌드위치도 썰어볼텐가?","나보다 더 잘 써는군"]
+
+        if(count == 5){
+            document.querySelector("#div1").innerHTML = `<br><br><br><h1 id='h1_1'>[스테이지 클리어] `
+            document.querySelector("#div1").innerHTML += `사장님 한줄평: ${clearmsg[parseInt(Math.random()*3)]} </h1><br><br><br>`
+            document.querySelector("#div1").innerHTML += `<h3>닉네임 : ${userId} <br>남긴 길이: ${length} <br>단계: ${stage}</h3>`
+            document.querySelector("#div1").innerHTML += `<input id='next' type=button value='다음단계'>`
+            document.querySelector("#next").addEventListener('click',function(){
+                localStorage.setItem("stage",++stage)
+                location.href = "./2_game.html"
+            })
+        }else{
+            document.querySelector("#div1").innerHTML = `<br><br><br><h1 id='h1_2'>[게임 오버]`
+            document.querySelector("#div1").innerHTML += `사장님 한줄평: ${overmsg[parseInt(Math.random()*3)]}</h1><br><br><br>`
+            document.querySelector("#div1").innerHTML += `<h3>닉네임 : ${userId} <br>자른 횟수: ${count}<br>단계: ${stage}</h3>`
+            document.querySelector("#div1").innerHTML += `<input id='home' type=button value='처음으로'>`
+            document.querySelector("#div1").innerHTML += `<input id='prev' type=button value='다시시작'>`
+            localStorage.setItem("stage",1)
+            document.querySelector("#home").addEventListener('click',function(){
+                location.href = "./1_gameStart.html"
+            })
+            document.querySelector("#prev").addEventListener('click',function(){
+                location.href = "./2_game.html"
+            })
+        }
+    </script>
+</body>
+</html>

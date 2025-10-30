@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root{
+        --width:1000px;
+        --canvas-height:500px;
+        --score-height:50px;
+        --accent:#ff6b6b;
+        --bg:#f7f9fc;
+        --card:#ffffff;
+        --radius:10px;
+        --font: "Noto Sans KR", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        }
+
+        /* 페이지 레이아웃 */
+        html,body{
+        height:100%;
+        margin:0;
+        font-family:var(--font);
+        background:var(--bg);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:24px;
+        box-sizing:border-box;
+        }
+
+        /* 메인 컨테이너 */
+        #main_div{
+        width:var(--width);
+        height: var(--canvas-height);
+        box-shadow:0 8px 24px rgba(16,24,40,0.06);
+        border-radius:12px;
+        overflow:hidden;
+        background:linear-gradient(180deg, #fff, #fbfdff);
+        }
+
+        /* 상단 score 바 */
+        #score{
+        height:var(--score-height);
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:0 18px;
+        box-sizing:border-box;
+        border-bottom:1px solid rgba(15,23,42,0.04);
+        gap:12px;
+        }
+        #score h4{
+        margin:0;
+        font-size:0.95rem;
+        color:#0f172a;
+        font-weight:600;
+        }
+
+        /* 캔버스 영역 */
+        #canvas{
+        position:relative;
+        height:var(--canvas-height);
+        width:100%;
+        background:linear-gradient(180deg,#eef6ff,#ffffff);
+        display:block;
+        box-sizing:border-box;
+        border-top:1px solid rgba(15,23,42,0.02);
+        }
+
+        /* 샌드위치, 빵, 칼 같은 게임 요소가 들어올 영역 기본 스타일 */
+        #canvas > div, #canvas img {
+        user-select:none;
+        -webkit-user-drag:none;
+        }
+
+        /* 자르기 버튼: 항상 캔버스 중앙 하단에 보이도록 고정 */
+        #cut_btn{
+        position:absolute;
+        top: 10px;
+        left: 20%;
+        transform:translateX(-50%);
+        height:50px;
+        width:200px;
+        font-size:20px;
+        font-weight:700;
+        color:#fff;
+        background:linear-gradient(90deg,var(--accent), #e64545);
+        border:none;
+        border-radius:10px;
+        cursor:pointer;
+        z-index:50;
+        box-shadow:0 10px 20px rgba(230,80,80,0.18);
+        }
+
+        /* 샌드위치 요소 기본 클래스(동적 생성 요소에 적용하기 쉬움) */
+        .sandwich {
+        position:absolute;
+        bottom:60px;
+        left:0;
+        height:120px;
+        overflow:hidden;
+        border-radius:12px;
+        display:block;
+        z-index:20;
+        }
+        .sandwich img {
+        display:block;
+        height:100%;
+        width:100%;
+        object-fit:cover;   
+        }
+
+        /* 칼(검) 이미지 기본 위치 */
+        .sword {
+        position:absolute;
+        top:40px;
+        left:490px; /* 캔버스 가운데 기준 */
+        width:20px;
+        height:100px;
+        z-index:30;
+        pointer-events:none;
+        }
+
+        /* 결과 텍스트 스타일 (score 바에 추가되는 경우) */
+        #score .muted {
+        color:#6b7280;
+        font-weight:500;
+        }
+
+        /* 반응형: 화면 좁아지면 크기 조정 */
+        @media (max-width:840px){
+        :root{
+            --width:92vw;
+            --canvas-height:64vw;
+            --score-height:48px;
+        }
+        #cut_btn{ width:20vw; font-size:18px; height:44px; top:8px; }
+        .sandwich{ height:24vw; top: 10vw}
+        .sword{ left: calc(50% - 10px); top:6vw; height:32vw; width:6vw; }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="main_div">
+        <div id="score"></div>
+        <div id="canvas">
+            <input type="button" value="자르기" id="cut_btn">
+        </div>
+    </div>
+
+    <script>
+        let mainDiv = document.querySelector("#main_div")
+        let mainDivStyle = window.getComputedStyle(mainDiv)
+        canvasWidth = parseInt(mainDivStyle.width)
+        let sGame
+        let cut
+        let cutting = 0
+        let moving = 0
+        let sMove
+        let count = document.createElement('h4')
+        let stageTag = document.createElement('h4')
+        let stage = localStorage.getItem("stage")
+        let stageSpeed = stage * 0.1
+        
+        window.onload = function(){
+            //샌드위치와 칼 생성
+            let sandwich = new Sandwich()
+            let sword = new Sword()
+
+            let cuttingCount = 0
+
+            //샌드위치 무빙 스타트
+            sGame = setInterval(function() {
+                if(moving == 0){
+                    moving = 1
+                    sandwich.vX > 0 ?  sandwich.vX += stageSpeed : sandwich.vX -= stageSpeed //자르기 성공시마다 난이도 증가
+                    sMove = setInterval(function() {
+                        sandwich.move()
+                        if(cuttingCount == 5){
+                            length = parseInt(sandwich.div.style.width)
+                            gameEnd(length, cuttingCount)
+                        }
+                    },1000/60)
+                }else{
+                }
+            },500)
+
+            //클릭시 칼질 스타트
+            let sLeftPx = 0
+            document.querySelector("#cut_btn").addEventListener('click',function(){
+                if(cutting == 0){
+                    cutting = 1
+                    cut = setInterval(function(){
+                        sword.cut(sword.height)
+                    },1000/60)
+                    let dLeft = parseInt(sandwich.div.style.left)
+                    let sLeft = parseInt(sandwich.bread.style.left)
+                    let width = parseInt(sandwich.div.style.width)
+                    let cavasCenter = canvasWidth/2
+                    let cC = canvasWidth/2
+                    let sC = dLeft + width/2
+
+                    if(sC >= cC){
+                        if((cC-dLeft) > 0){
+                            sandwich.div.style.width = (cC-dLeft) + "px"
+                            // alert("분기1")
+                        }else{
+                            sandwich.div.style.width = 0 + "px"
+                            // alert("분기2")
+                        }
+                    }else{
+                        if((dLeft + width - cC) > 0){
+                            sandwich.div.style.width = (dLeft + width - cC) + "px"
+                            sandwich.div.style.left = cC + "px"
+                            sandwich.x = cC
+                            sandwich.bread.style.left = sLeft + ((cC - dLeft)*-1) + "px"
+                            // alert("분기3")
+                        }else{
+                            console.log("cC",cC)
+                            console.log("sC",sC)
+                            console.log("dLeft",dLeft)
+                            console.log("width",width)
+
+                            sandwich.div.style.width = 0 + "px"
+                            // alert("분기4")
+                        }
+                    }
+
+                    setTimeout(function(){
+                        let length = parseInt(sandwich.div.style.width)
+                        if(dLeft <= cC){
+                            if(cC - (dLeft + width) >= 0){
+                                gameEnd(length, cuttingCount)
+                            }else{
+                                cuttingCount++
+                            }
+                        }else if(dLeft > cC){
+                            gameEnd(length, cuttingCount)
+                        }
+                        if(length == 0){
+                            gameEnd(length, cuttingCount)
+                        }
+                    },1000)
+                    
+
+                }
+                clearInterval(sMove)
+                moving = 0
+            })
+            
+            //score, 남은길이, 샌드위치 중앙x좌표
+            let length = document.createElement('h4')
+             
+            document.querySelector("#score").appendChild(length)
+            document.querySelector("#score").appendChild(count)
+            document.querySelector("#score").appendChild(stageTag)
+            let score = setInterval(function(){
+                length.innerHTML = "샌드위치 남은길이:" + sandwich.div.style.width
+                count.innerHTML = "자른 횟수: " + cuttingCount
+                stageTag.innerHTML = "Stage: " + stage
+            },100)
+        }
+
+        function Sandwich(){
+            this.x = 0
+            this.y = 200
+            this.vX = parseInt(parseInt(mainDivStyle.width)/300) + parseInt(parseInt(mainDivStyle.width)/500)*(stage-1)
+            this.height = parseInt(mainDivStyle.height)/3
+            this.width = parseInt(mainDivStyle.width)/2 * 1.5
+            this.div = document.createElement('div')
+            this.div.style.position = "absolute"
+            this.div.style.height = this.height + "px"
+            this.div.style.width = this.width + "px"
+            this.div.style.top = this.y + "px"
+            this.div.style.zIndex = 3
+            this.div.style.overflow = "hidden"
+            this.bread = document.createElement('img')
+            this.bread.style.position = "relative"
+            this.bread.src = "./img/sandwich.png"
+            this.bread.style.height = this.height + "px"
+            this.bread.style.width = this.width + "px"
+            this.bread.style.left =  "0px"
+            this.bread.style.zIndex = 2
+            this.div.appendChild(this.bread)
+            document.querySelector("#canvas").appendChild(this.div)
+        }
+        Sandwich.prototype.move = function(){
+            let width = this.div.style.width
+            let count=0
+            if(parseInt(this.x) + parseInt(width) > parseInt(mainDivStyle.width) || this.x < 0){
+                this.vX *= -1
+            }
+            this.x += this.vX
+            this.div.style.left = this.x + "px"
+            // console.log(this.vX)
+            // console.log(this.bread.style.width)
+            // console.log(parseInt(this.x + width))
+            // console.log(parseInt(mainDivStyle.width))
+            // console.log(this.x + width > parseInt(mainDivStyle.width))
+        }
+        function Sword(){
+            this.x = parseInt(mainDivStyle.width)/2 - 10
+            this.y = parseInt(mainDivStyle.height)/10
+            this.vY = 25
+            this.height = parseInt(mainDivStyle.height)/5
+            this.width = 20
+            this.sword = document.createElement('img')
+            this.sword.style.position = "absolute"
+            this.sword.src = "./img/sword.jpg"
+            this.sword.style.height = this.height + "px"
+            this.sword.style.width = this.width + "px"
+            this.sword.style.left = this.x + "px"
+            this.sword.style.top = this.y + "px"
+            this.sword.style.zIndex = 3
+            document.querySelector("#canvas").appendChild(this.sword)
+        }
+
+        Sword.prototype.cut = function(height){
+            if(this.y + height > 300 ){
+                this.vY*= -1
+            }else if(this.y < 50) {
+                this.y = 60
+                this.vY = 20
+                this.sword.style.top = this.y + "px"
+                cutting = 0
+                return clearInterval(cut)
+            }
+            this.y += this.vY
+            this.sword.style.top = this.y + "px"
+        }
+
+        function gameEnd(length, count){
+            localStorage.setItem("length",length)
+            localStorage.setItem("count",count)
+            localStorage.setItem("stage",stage)
+            location.href = "./3_gameResult.html"
+        }
+    </script>
+</body>
+</html>

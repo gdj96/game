@@ -31,14 +31,14 @@
 <script>
     let pdfs = ["과정 안내서.pdf","과정 안내서.pdf","과정 안내서.pdf","과정 안내서.pdf","과정 안내서.pdf","과정 안내서.pdf",
                 "과정 안내서.pdf","과정 안내서.pdf","과정 안내서.pdf","과정 안내서.pdf"];
-    let htmls = ["image.html","image.html","image.html","image.html","image.html",
+    let htmls = ["1_gameStart.html","image.html","image.html","image.html","image.html",
                  "image.html","image.html","image.html","image.html","image.html"];
     function pdfopen(i) {
         let github = "https://gdj96.github.io/game/pdf/" + pdfs[i];
         window.open(github,'','');
     }
     function linkopen(i) {
-        let github = "https://gdj96.github.io/game/" + htmls[i];
+        let github = "https://gdj96.github.io/game/" +(i+1)+ "/"+htmls[i];
         window.open(github,'','');
     }
 </script>    
