@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style type="text/css">
+        table,td {border:1px solid gray;}
+        table {border-collapse: collapse;}
+      </style>
+</head>
+<body>
+    <!-- onchange : value값이 변경되는 경우 발생되는 이벤트
+    this : select 객체 -->
+    <select id="level" onchange="gamestart(this)">
+       <option value="2">2 X 2</option>
+        <option value="4" selected="selected">4 X 4</option>
+        <option value="6">6 X 6</option>
+    </select>
+    <div id="board"></div>
+<script>
+        let level = 4; //전역변수
+        window.onload = function() {
+            shuffle(); //이미지 섞기
+            editHtml(); //이미지를 화면에 출력
+            game(); //게임시작
+        }        
+        function shuffle() {  // 이미지 섞기
+            //let, var 없으므로 전역변수로 사용됨
+            model = ["S_1.jpg","S_1.jpg","S_2.jpg","S_2.jpg",
+                     "S_3.jpg","S_3.jpg","S_4.jpg","S_4.jpg",
+                     "S_5.jpg","S_5.jpg","S_6.jpg","S_6.jpg",
+                     "S_7.jpg","S_7.jpg","S_8.jpg","S_8.jpg",
+                     "S_9.jpg","S_9.jpg","S_10.jpg","S_10.jpg",
+                     "pic00.png","pic00.png","pic01.png","pic01.png",
+                     "pic02.png","pic02.png","pic03.png","pic03.png",
+                     "pic04.png","pic04.png","pic05.png","pic05.png",
+                    "pic06.png","pic06.png","pic07.png","pic07.png" ];
+            cnt = level * level; //화면에 출력할 사진의 갯수. 2*2=4, 4*4=16, 6*6=36
+            //이미지 섞기
+            for(let a=0;a<10000;a++) {
+                let ran = Math.floor(Math.random()*cnt); //0 ~ cnt-1까지의 임의의 수
+                let tmp = model[0];
+                model[0] = model[ran];
+                model[ran] = tmp;
+            }
+        }
+        function editHtml() { //화면에 이미지 출력
+            let board = "<table>";
+            for(let i=0;i<cnt;i++) {
+                if((i%level)==0) board +="<tr>";
+                board +=
+                `<td><img class='pic' id='pic${i}' src='./img/${model[i]}' value='${model[i]}' width='100' height='100'></td>`;
+                if((i%level)==(level - 1)) board +="</tr>";
+            }
+            document.querySelector("#board").innerHTML = `${board}</table>`
+        }
+        function game() {
+            //2초 후에 function 실행 : 2초 후에 이미지가 안보임
+            setTimeout(function() {
+                let pics = document.querySelectorAll(".pic") //모든 이미지태그들
+                pics.forEach(function(item) {
+                    /*  배열.forEach(함수(item)) : 배열 모든 요소를 순회하면서 함수 실행
+                        item : 배열 요소 한개. class="pic"인 이미지태그 한개
+                        opacity:0.01 : 투명도. 1:불투명, 0:투명. 
+                    */
+                    item.setAttribute("style","opacity:0.01"); //투명도 0.01 => 이미지 안보임
+                 })
+            },2000);
+            let total = 0;  //클릭한 횟수
+            let count = 0;  //1번째,2번째 이미지 클릭여부 판단
+            let success = 0; //쌍인 이미지를 찾은 갯수. 이미지갯수/2
+            let onePic = null; //첫번째 이미지 정보
+            let twoPic = null; //두번째 이미지 정보
+            let oneId = null;
+            let twoId = null;
+            let pics = document.querySelectorAll(".pic")
+            for(let i=0;i<pics.length;i++) { 
+                //이미지를 클릭한 경우
+                pics[i].onclick = function() {
+                 if(pics[i].getAttribute("class").indexOf("diepic") < 0) { //이미지의 class="diepic"가 아닌경우. 찾지 못한 이미지
+                   total++; //클릭한 횟수 증가
+                   pics[i].setAttribute("style","opacity:1") //이미지를 불투명하게. 이미지 보임
+                   count++; //이미지의 클릭 순서
+                   if(count == 1) { //첫번째 이미지 클릭
+                     onePic = pics[i] //클릭된 이미지를 onePic변수에 저장
+                     oneId = onePic.getAttribute("id");
+                   } else if(count == 2) { //두번째 이미지 클릭
+                     twoPic = pics[i] //클릭된 이미지를 twoPic변수에 저장
+                     twoId = twoPic.getAttribute("id");
+//                     if(onePic.getAttribute("src") == twoPic.getAttribute("src") && (oneId != twoId)) {  //쌍인 이미지 검색 성공
+                     if(onePic.getAttribute("src") == twoPic.getAttribute("src") && (onePic != twoPic)) {  //쌍인 이미지 검색 성공
+                            success++; //찾은 이미지 쌍의 갯수 증가
+                            onePic.setAttribute("class","diepic"); //class속성을 diepic로 설정
+                            twoPic.setAttribute("class","diepic"); //class속성을 diepic로 설정
+                            onePic.disable=true; //클릭못하도록 설정
+                            twoPic.disable=true; //클릭못하도록 설정
+                            if(cnt/2 == success) {
+                              alert(total + "번 만에 성공. 게임 종료")
+                              setTimeout(function(){
+                                if(confirm("게임을 계속하시겠습니까?"))
+                                   location.reload(); //현재 페이지 로드
+                                },2000) 
+                              }
+                      } else {   //쌍인 이미지 찾기 실패
+                        setTimeout(function() {  //2개의 이미지를 투명하게 설정. 
+                            onePic.setAttribute("style","opacity:0.01");
+                            twoPic.setAttribute("style","opacity:0.01");
+                         },500)
+                      }
+                      count = 0;
+                 } else { //count가 1,2가 아닌 경우
+                    alert("프로그램 오류 발생");
+                 }
+               }
+            }  //이미지 클릭 이벤트 끝
+          } //for 구문 끝
+        } //함수의 끝
+        function gamestart(sel) {
+            //sel : select 객체
+            level = parseInt(sel.value);
+            shuffle();
+            editHtml();
+            game();
+        }
+</script></body></html>
