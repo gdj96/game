@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>슬라이드 퍼즐</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap");
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-color: lightgray;
+      }
+      #title {
+        position: absolute;
+        font-size: 50px;
+        top: 100px;
+        font-family: cinzel;
+        text-shadow: 0 0 10px blue;
+      }
+      #puzzleContainer {
+        width: 400px;
+        height: 400px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        gap: 2px;
+        border: 2px solid black;
+        margin-top: 20px;
+        object-fit: contain;
+      }
+      .tile {
+        background-size: 300%; /* 3x3 기준 , 중요 !! 이미지를 3배로 키운다음 영역 설정후 보여줌*/
+        cursor: pointer;
+      }
+      #controls {
+        display: flex;
+        gap: 10px;
+      }
+      .buttonDiv {
+        padding: 10px 20px;
+        border: 1px solid #333;
+        cursor: pointer;
+        text-align: center;
+        user-select: none;
+      }
+      #selectImage {
+        background-color: white;
+        color: blue;
+        border: none;
+      }
+      #shuffle {
+        background-color: red;
+        color: white;
+        border: none;
+      }
+      #selectImage:hover {
+        cursor: pointer;
+        box-shadow: 0 0 8px gray;
+      }
+      #shuffle:hover {
+        cursor: pointer;
+        box-shadow: 0 0 8px red;
+      }
+      #originalPicture {
+        position: absolute; /* 화면 특정 위치에 고정 */
+        top: 480px; /* 위에서 50px */
+        left: 450px; /* 퍼즐 오른쪽에 위치 (퍼즐 가로 400px + 간격 20px) */
+        width: 200px; /* 영역 가로 크기 */
+        height: 200px; /* 임시 높이 지정 */
+        border: 2px dashed black; /* 점선 테두리로 영역 확인 */
+        display: flex; /* 이미지 들어가도 중앙 정렬 가능 */
+        background-color: lightgray;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        z-index: 10; /* 다른 요소보다 위로 표시 */
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="title">slide puzzle</div>
+    <div id="controls">
+      <div id="selectImage" class="buttonDiv">Image</div>
+      <div id="shuffle" class="buttonDiv">Shuffle!</div>
+    </div>
+
+    <input type="file" id="imageInput" accept="image/*" style="display: none" />
+
+    <div id="puzzleContainer"></div>
+    <div id="originalPicture"></div>
+
+    <script>
+      const puzzleContainer = document.getElementById("puzzleContainer"); //퍼즐 사진이 들어갈 영역
+      const imageInput = document.getElementById("imageInput"); // 이미지 삽입 input
+      const selectImageBtn = document.getElementById("selectImage"); //이미지 선택 버튼
+      const shuffleBtn = document.getElementById("shuffle"); //셔플 버튼
+
+      const size = 3; // 3x3 퍼즐
+      let tiles = []; //각 타일을 담는 배열
+      let emptyIndex = size * size - 1; // 마지막 타일
+      let imgSrc = ""; //선택한 이미지
+
+      // 버튼 클릭 -> 파일 선택
+      selectImageBtn.onclick = () => imageInput.click(); //이미지버튼 누르면 input 실행
+
+      imageInput.onchange = (e) => {
+        const file = e.target.files[0]; //사용자가 고른 첫번째 파일
+        if (!file) return; //취소 및 파일 없을시 아무 행동 x
+        imgSrc = URL.createObjectURL(file); //파일의 임시 URL
+        originalPicture = document.getElementById("originalPicture"); //미리보기 화면
+        originalPicture.style.backgroundImage = `url(${imgSrc})`; //미리보기에 사진 넣기
+        originalPicture.style.backgroundSize = "cover";
+        originalPicture.style.backgroundPosition = "center";
+        originalPicture.style.backgroundRepeat = "no-repeat";
+        createPuzzle(); //새 퍼즐 생성 함수 실행
+      };
+
+      function createPuzzle() {
+        puzzleContainer.innerHTML = ""; //퍼즐 컨테이너 초기화
+        tiles = []; //타일 정보를 저장할 배열, 기존 타일 배열 초기화
+
+        for (let i = 0; i < size * size; i++) {
+          //3X3 즉 0~8 을 반복문
+          const tile = document.createElement("div"); // 8개의 타일 div 생성
+          tile.classList.add("tile"); //타일에 tile - class를 추가
+          tile.dataset.index = i; //각 타일에 index 정보 추가
+
+          if (i !== emptyIndex) {
+            //3x3에서는 emptyIndex가 8
+            tile.style.backgroundImage = `url(${imgSrc})`;
+            const row = Math.floor(i / size); // 행 : 0,0,0,1,1,1,2,2,2
+            const col = i % size; //             열 : 0,1,2,0,1,2,0,1,2
+            tile.style.backgroundPosition = `${(col / (size - 1)) * 100}% ${
+              (row / (size - 1)) * 100 // 해당 tile에서 보여줄 영역 설정, 추후 정답 위치
+            }%`;
+          }
+          tile.onclick = () => moveTile(i); //누른 타일의 index값을 받아 moveTile 함수로 이동
+          puzzleContainer.appendChild(tile); //부모요소.appendchild(자식요소) -DOM에 추가
+          tiles.push(tile); // 모든 타일을 배열로 관리
+        }
+      }
+
+      function getMovableIndexes() {
+        const indexes = []; //이동 가능한 타일들의 배열
+        const emptyRow = Math.floor(emptyIndex / size); // 8나누기3 몫의 내림 : 2
+        const emptyCol = emptyIndex % size; // 8나누기3의 나머지 2
+        if (emptyRow > 0) indexes.push(emptyIndex - size); //index : 5
+        if (emptyRow < size - 1) indexes.push(emptyIndex + size);
+        if (emptyCol > 0) indexes.push(emptyIndex - 1); // index : 7
+        if (emptyCol < size - 1) indexes.push(emptyIndex + 1);
+        return indexes;
+      }
+
+      let isShuffling = false;
+
+      shuffleBtn.onclick = () => shufflePuzzle(); //셔플 버튼 클릭시 shuffle 함수 실행
+
+      function shufflePuzzle() {
+        isShuffling = true;
+        for (let i = 0; i < 100; i++) {
+          const movable = getMovableIndexes();
+          const rand = movable[Math.floor(Math.random() * movable.length)]; //movable[0~1]
+          moveTile(rand);
+        }
+        isShuffling = false;
+      }
+
+      function moveTile(i) {
+        const targetRow = Math.floor(i / size); // 7/3의 내림 : 2
+        const targetCol = i % size; // 7/3의 나머지 : 1
+        const emptyRow = Math.floor(emptyIndex / size); // 8/3의 내림 : 2
+        const emptyCol = emptyIndex % size; // 8/3의 나머지 : 2
+        if (
+          (targetRow === emptyRow && Math.abs(targetCol - emptyCol) === 1) ||
+          (targetCol === emptyCol && Math.abs(targetRow - emptyRow) === 1)
+        ) {
+          [
+            tiles[i].style.backgroundImage,
+            tiles[emptyIndex].style.backgroundImage,
+          ] = [
+            tiles[emptyIndex].style.backgroundImage,
+            tiles[i].style.backgroundImage,
+          ];
+          [
+            tiles[i].style.backgroundPosition,
+            tiles[emptyIndex].style.backgroundPosition,
+          ] = [
+            tiles[emptyIndex].style.backgroundPosition,
+            tiles[i].style.backgroundPosition,
+          ];
+          emptyIndex = i; //
+          if (!isShuffling && checkSolved()) {
+            setTimeout(() => alert("퍼즐 완성! 🎉"), 100);
+          }
+        }
+
+        function checkSolved() {
+          for (let i = 0; i < tiles.length - 1; i++) {
+            // i < 7 => 첫 emptyindex(8번) 제외하고
+            const row = Math.floor(i / size); // 행 : 0,0,0,1,1,1,2,2
+            const col = i % size; // 열 : 0,1,2,0,1,2,0,1
+            const correctPos = `${(col / (size - 1)) * 100}% ${
+              (row / (size - 1)) * 100
+            }%`;
+            if (tiles[i].style.backgroundPosition !== correctPos) return false;
+          }
+          return true;
+        }
+      }
+    </script>
+  </body>
+</html>
