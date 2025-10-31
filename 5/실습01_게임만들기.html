@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .mainarea{
+            width: 800px;
+            height: 480px;
+            /* border: 1px solid black; */
+            display: flex;
+            flex-direction: column;
+
+            justify-self: center;
+            justify-content: end;
+            align-items: center;
+            position: relative;
+        }
+        .stayarea {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            gap: 10px;
+            z-index: 50;
+        }
+        button {
+            font-size: 20px;
+            font-weight: 500;
+            color: white;
+            background-color: #644017;
+            border: 1px solid white;
+            padding: 10px 20px;
+        }
+        .gamearea {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            /* border: 1px solid red; */
+            background-image: url(./img/backimg.png);
+            z-index: 1;
+        }
+        .gamearea > div[class^='game'] {
+            width: 100%;
+            height: 25%;
+            /* border: 1px solid blue; */
+            align-self: center;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        .gamearea > div[class^='score'] {
+            width: 100%;
+            height: 15%;
+            /* border: 1px solid green; */
+            align-self: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+        div[class ^= 'molehole'] {
+            width: 120px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            /* overflow: hidden; */
+            /* border: 1px solid pink; */
+        }
+        div[class ^= 'molehole'] > div{
+            width: 85px;
+            height: 85%;
+            display: flex;
+            position: absolute;
+            overflow: hidden;
+            /* border: 1px solid yellow; */
+            border-radius: 0 0 35px 35px;
+        }
+        .otherofgamearea{
+            height: 10%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0 20px;
+            font-size: 16px;
+        }
+        .remainarea {
+            display: flex;
+            align-items: center;
+        }
+        .speedarea {
+            display: flex;
+            align-items: center;
+        }
+        #remaintime{
+            width: 30px;
+        }
+        .settingarea{
+            width: 80%;
+            height: 80%;
+            border: 1px solid black;
+            position: absolute;
+            top: 10%;
+            border-radius: 30px;
+            background-color: #97662dee;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .settingother {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5% 0 5%;
+        }
+        .timesettable {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #playTimeSetBtn{
+            width: 70px;
+            height: 30px;
+            font-size: 14px;
+            font-weight: 400;
+            padding: 0;
+            background-color: rgba(128, 128, 128, 0.767);
+            border: 1px solid #c5843a;
+            border-radius: 5px;
+        }
+        #exitsetting {
+            background-color: transparent;
+            color: red;
+            padding: 0;
+            font-size: 25px;
+            font-weight: 900;
+            border: 0px;
+        }
+        .presskeynote {
+            text-align: center;
+            font-size: 20px;
+            font-style: italic;
+            font-weight: 500;
+            color: white;
+        }
+        .settingtable{
+            width: 90%;
+            height: 80%;
+            border: 1px solid black;
+            align-self: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+        }
+        .settingtable > div {
+            width: 100%;
+            height: 30%;
+            /* border: 1px solid red; */
+            align-self: center;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        .settingtable > div > div {
+            display: flex;
+            flex-direction: column;
+            /* justify-content: center; */
+            align-items: center;
+        }
+        .smpleimgC{
+            width: 70px;
+            bottom: -100%;
+            transition: bottom 0.2s ease-out;
+        }
+        .up {
+            bottom: 0%;
+        }
+        input {
+            height: 20px;
+            width: 70px;
+        }
+        #defaultkeynotation {
+            background-color: #FFFFFFEE;
+            padding: 2px 10px;
+        }
+        /* 점수 부여 */
+        .judge-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: bold;
+        }
+        .perfect { font-size: 20px; color: #FFD700; text-shadow: 0 0 20px #FFF3; }
+        .great { font-size: 18px; color: #40CFFF; }
+        .nice { font-size: 16px; color: #7FFFD4; }
+        .miss { font-size: 18px; color: #FF4444; transform: translate(-50%, -50%) rotate(-5deg); }
+        /* 점수 표시 */
+        .resultarea {
+            width: 90%;
+            height: 85%;
+            border: 1px solid black;
+            border-radius: 30px;
+            box-shadow: 5px 5px 20px #000000AA;
+            position: absolute;
+            top: 5%;
+            z-index: 200;
+            background-color: #7e7e7eAA;
+            display: flex;
+            flex-direction: column;
+            padding: 0 0 20px 0;
+        }
+        .resulthead {
+            width: 100%;
+            height: 15%;
+            display: flex;
+            justify-content: center;
+        }
+        .resultbody {
+            width: 100%;
+            height: 75%;
+            display: flex;
+            justify-content: space-between;
+        }
+        .resultlist{
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .resultgrade{
+            width: 50%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .resultfoot {
+            width: 100%;
+            height: 10%;
+            display: flex;
+            justify-content: center;
+        }
+        #resultok {
+            padding: 5px 10px;
+            margin: 0;
+            background-color: #7e7e7e;
+            box-shadow: 2px 2px 20px #000000AA;
+        }
+        .headtext {
+            font-size: 40px;
+            color: #ffffff;
+            margin: 0px;
+            font-weight: 500;
+            text-shadow: 5px 5px 5px #000000AA;
+        }
+        .resultbody div[class $='count']{
+            height: 20%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 60px;
+            justify-content: center;
+        }
+        .scoretext {
+            font-size: 24px;
+            color: white;
+            text-shadow: 5px 5px 5px #000000AA;
+        }
+    </style>
+</head>
+<body>
+    <div class="mainarea">
+        <div class="gamearea">
+            <div class="otherofgamearea">
+                <div class="speedarea">
+                    <label for="remaintime">배속 : x&nbsp;</label>
+                    <p id="nowspeed"></p>
+                </div>
+                <div class="remainarea">
+                    <label for="remaintime">남은 시간 :&nbsp;&nbsp;</label>
+                    <p id="remaintime"></p>
+                    <label for="remaintime">초</label>
+                </div>
+            </div>
+            <div class="gamefirsttable">
+                <div class="molehole0">
+                    <div class="onlymole0"></div>
+                </div>
+                <div class="molehole1">
+                    <div class="onlymole1"></div>
+                </div>
+                <div class="molehole2">
+                    <div class="onlymole2"></div>
+                </div>
+            </div>
+            <div class="gamesecondtable">
+                <div class="molehole3">
+                    <div class="onlymole3"></div>
+                </div>
+                <div class="molehole4">
+                    <div class="onlymole4"></div>
+                </div>
+            </div>
+            <div class="gamethirdtable">
+                <div class="molehole5">
+                    <div class="onlymole5"></div>
+                </div>
+                <div class="molehole6">
+                    <div class="onlymole6"></div>
+                </div>
+                <div class="molehole7">
+                    <div class="onlymole7"></div>
+                </div>
+            </div>
+            <div class="scorearea">
+                <label for="gamescore">점수 : &nbsp;</label>
+                <p id="gamescore"></p>
+                <label for="gamescore">&nbsp;점</label>
+            </div>
+        </div>
+        <div class="stayarea">
+            <p class="presskeynote">Press Enter <br> To  Start Game!</p>
+            <button id="startBtn">시작하기</button>
+            <button id="settingBtn">환경설정</button>
+            <p id="defaultkeynotation"></p>
+        </div>
+        <div class="settingarea">
+            <div class="settingother">
+                <div class="timesettable">
+                <label for="playTimeSet">게임 시간 설정</label>
+                <input type="text" name="" id="playTimeSet" maxlength="4">
+                <label for="playTimeSet">초</label>
+                <button id="playTimeSetBtn">시간 변경</button>
+                </div>
+                <button id="exitsetting">X</button>
+            </div>
+            <div class="settingtable">
+                <div class="firsttable">
+                    <div class="samplemole0">
+                        <input type="text" name="" id="keyindex0" maxlength="1">
+                        <img src="./img/1.png" alt="" class="smpleimgC" id="test1">
+                    </div>
+                    <div class="samplemole1">
+                        <input type="text" name="" id="keyindex1" maxlength="1">
+                        <img src="./img/1.png" alt="" class="smpleimgC">
+                    </div>
+                    <div class="samplemole2">
+                        <input type="text" name="" id="keyindex2" maxlength="1">
+                        <img src="./img/1.png" alt="" class="smpleimgC">
+                    </div>
+                </div>
+                <div class="secondtable">
+                    <div class="samplemole3">
+                        <input type="text" name="" id="keyindex3" maxlength="1">
+                        <img src="./img/1.png" alt="" class="smpleimgC">
+                    </div>
+                    <div class="samplemole4">
+                        <input type="text" name="" id="keyindex4" maxlength="1">
+                        <img src="./img/1.png" alt="" class="smpleimgC">
+                    </div>
+                </div>
+                <div class="thirdtable">
+                    <div class="samplemole5">
+                        <input type="text" name="" id="keyindex5" maxlength="1">
+                        <img src="./img/1.png" alt="" class="smpleimgC">
+                    </div>
+                    <div class="samplemole6">
+                        <input type="text" name="" id="keyindex6" maxlength="1">
+                        <img src="./img/1.png" alt="" class="smpleimgC">
+                    </div>
+                    <div class="samplemole7">
+                        <input type="text" name="" id="keyindex7" maxlength="1">
+                        <img src="./img/1.png" alt="" class="smpleimgC">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="resultarea">
+            <div class="resulthead">
+                <p class="headtext">점 수 합 계</p>
+            </div>
+            <div class="resultbody">
+                <div class="resultlist">
+                    <div class="grade1count">
+                        <img src="./img/gradeP.png" alt="" height="100%">
+                        <p class="scoretext" id="scoreptext">text</p>
+                    </div>
+                    <div class="grade2count">
+                        <img src="./img/gradeG.png" alt="" height="100%">
+                        <p class="scoretext" id="scoregtext">text</p>
+                    </div>
+                    <div class="grade3count">
+                        <img src="./img/gradeN.png" alt="" height="100%">
+                        <p class="scoretext" id="scorentext">text</p>
+                    </div>
+                    <div class="grade4count">
+                        <img src="./img/gradeM.png" alt="" height="100%">
+                        <p class="scoretext" id="scoremtext">text</p>
+                    </div>
+                    <div class="grade5count">
+                        <img src="./img/gradeT.png" alt="" height="100%">
+                        <p class="scoretext" id="scorettext">text</p>
+                    </div>
+                </div>
+                <div class="resultgrade">
+                    <img src="./img/gradeT.png" alt="" height="100%" id="resultimg">
+                </div>
+            </div>
+            <div class="resultfoot">
+                <button id="resultok">나가기</button>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <script>
+        // 기타 div 세팅
+        let stayarea;
+        let setarea;
+        let otherofgamearea;
+        let scorearea;
+        let gamescore;
+        let isSetDisp;
+        let notation;
+        let keyArr = [];
+        // 인게임 세팅
+        let isGameStart;
+        let speedarea;
+        let nowspeedtext;
+        let remaintimetext;
+        let timesetinp;
+        let playTime;
+        let giveupsign = false;
+        let inPlayInterval;
+        let isTimeGone;
+        let isComboSpeed;
+        // 이미지 객체
+        let moleArr = new Array(8);
+        let holeArr = new Array(8);
+        // 점수
+        let totalScore = 0;
+        let percount = 0;
+        let grecount = 0;
+        let niccount = 0;
+        let miscount = 0;
+        let comcount = 0;
+        const perfectScore = 100;
+        const greatScore = 70;
+        const niceScore = 50;
+        const missScore = -50;
+        let scoreptext;
+        let scoregtext;
+        let scorentext;
+        let scoremtext;
+        let scorettext;
+        let exitresultbtn;
+        let resultarea;
+        let gradedivs = new Array(5);
+        let gradearea;
+        let resultgradeimg;
+
+        // 애니메이션 전역 변수
+        const State = { Idle: 'idle', Up: 'up', Hold: 'hold', Down: 'down' }
+        let upTime = 500;
+        let holdTime = 1000;
+        let downTime = 300;
+        let mSpeed = 1;            // 이동(Up,Down) 속도 배수
+        let holdControl = 1;       // 멈춤 시간 조절
+        // 유틸
+        const clamp01 = (v) => Math.max(0, Math.min(1, v));
+        const lerp = (a, b, t) => a + (b - a) * t;
+        function comboCheck(cnt) {
+            switch(true){
+                case cnt < 10 : {
+                    mSpeed = 1;
+                    holdControl = 1;
+                    speedarea.style.color = 'black'
+                    speedarea.style.fontSize = '16px'
+                }
+                break;
+                case cnt < 25 : {
+                    mSpeed = 1.5;
+                    holdControl = 1.5;
+                    speedarea.style.color = 'yellow'
+                    speedarea.style.fontSize = '18px'
+                    speedarea.style.fontWeight = '500'
+                }
+                break;
+                case cnt < 40 : {
+                    mSpeed = 2;
+                    holdControl = 2;
+                    speedarea.style.color = 'orange'
+                    speedarea.style.fontSize = '20px'
+                    speedarea.style.fontWeight = '700'
+                }
+                break;
+                case cnt < 60 : {
+                    mSpeed = 3;
+                    holdControl = 3;
+                    speedarea.style.color = 'pink'
+                    speedarea.style.fontSize = '24px'
+                    speedarea.style.fontWeight = '900'
+                }
+                break;
+                case cnt < 80 : {
+                    mSpeed = 4;
+                    holdControl = 4;
+                    speedarea.style.color = 'red'
+                    speedarea.style.fontSize = '30px'
+                    speedarea.style.fontWeight = '900'
+                }
+                break;
+                case cnt >= 80 : {
+                    mSpeed = 5;
+                    holdControl = 5;
+                    speedarea.style.color = 'darkred'
+                    speedarea.style.fontSize = '40px'
+                    speedarea.style.fontWeight = '900'
+                }
+                break;
+            }
+            nowspeedtext.textContent = mSpeed;
+        }
+
+        init();
+        function gameStart(){
+            
+            // 게임중 검증
+            if(isGameStart) return;
+
+            // 점수 초기화
+            totalScore = percount = grecount = niccount = miscount = comcount = 0;
+            gamescore.textContent = totalScore
+            // 속도 초기화
+            mSpeed = holdControl = 1;
+            comboCheck(comcount);
+            // keydown event set
+            window.addEventListener('keydown', handleKeyDown)
+            stayarea.style.display = 'none'
+            setarea.style.display = 'none'
+            otherofgamearea.style.visibility = 'Visible'
+            scorearea.style.visibility = 'Visible'
+            
+            // 배속, 시간 표기
+            remaintimetext = document.querySelector('#remaintime');
+            let timelimit = playTime
+
+            remaintimetext.textContent = timelimit
+            nowspeedtext.textContent = mSpeed;
+
+            isTimeGone = setInterval(() => {
+                --timelimit;
+                if(timelimit < 10){
+                    remaintimetext.style.color = 'red';
+                }
+                else if(timelimit < 30){
+                    remaintimetext.style.color = 'orange';
+                }
+                if(timelimit < 1){
+                    clearGame();
+                }
+                remaintimetext.textContent = timelimit
+            }, 1000)
+            
+            inPlayInterval = setInterval(() => {
+                console.log("TimerRunning")
+                if(giveupsign){
+                    if(confirm('게임을 중단하시겠습니까?')){
+                        clearGame();
+                    }
+                    else{
+                        giveupsign = false;
+                    }
+                }
+            },200)
+            
+            for(let i=0; i < moleArr.length; i++){
+                moleArr[i].start()
+            }
+            isGameStart= true;
+        }
+        function checkmole(key){
+            console.log(`keyPress : ${key}`)
+            if(!isGameStart) return
+            let num = keyArr.indexOf(key)
+            console.log(`index : ${num}`)
+            let target = moleArr[num];
+            let tState = target.state
+            let nowS = missScore;
+            let nowST = 'miss'
+            switch(tState){
+                case State.Up :{
+                    percount++;
+                    comcount++;
+                    nowS = perfectScore
+                    nowST = 'perfect'
+                    totalScore += nowS;
+                    target.state = State.Down;
+                    target.img.src = target.perImg;
+                    target.recentImg = target.perImg;
+                }
+                break;
+                case State.Hold :{
+                    comcount++;
+                    nowS = target.normalC < 0.5 ? greatScore : niceScore;
+                    (nowS === greatScore) ? grecount++ : niccount++;
+                    (nowS === greatScore) ? nowST = 'great' : nowST = 'nice';
+                    totalScore += nowS;
+                    target.state = State.Down;
+                    target.img.src = target.greImg;
+                    target.recentImg = target.greImg;
+                }
+                break;
+                case State.Down :{
+                    miscount++;
+                    comcount = 0;
+                    totalScore += missScore;
+                    target.img.src = target.misImg;
+                    target.recentImg = target.misImg;
+                }
+                break;
+                case State.Idle :{
+                    miscount++;
+                    comcount = 0;
+                    totalScore += missScore;
+                    target.img.src = target.misImg;
+                    target.recentImg = target.misImg;
+                }
+                break;
+            }
+            gamescore.textContent = totalScore
+            comboCheck(comcount);
+            target.hitChange(nowST);
+        }
+        function clearGame(){
+            // interval 초기화
+            clearInterval(isTimeGone);
+            clearInterval(inPlayInterval);
+            isTimeGone = null;
+            inPlayInterval = null;
+            giveupsign = false;
+            // animation 초기화
+            for(let i=0; i < moleArr.length; i++){
+                moleArr[i].stop();
+            }
+            // keyevent 초기화
+            window.removeEventListener('keydown', handleKeyDown)
+            // 게임중 검증 초기화
+            isGameStart= false;
+            // UI 초기화
+            stayarea.style.display = 'flex'
+            otherofgamearea.style.visibility = 'Hidden';
+            scorearea.style.visibility = 'Hidden';
+            // 점수판 표출
+            getGameGrade();
+        }
+        function getGameGrade(){
+            stayarea.style.display = 'none'
+            resultarea.style.display = 'flex'
+            gradearea.style.visibility = 'Hidden'
+            exitresultbtn.style.visibility = 'Hidden'
+            scoreptext.innerHTML = ` X &nbsp; ${percount} &nbsp; = &nbsp; ${perfectScore * percount}`
+            scoregtext.innerHTML = ` X &nbsp; ${grecount} &nbsp; = &nbsp; ${greatScore * grecount}`
+            scorentext.innerHTML = ` X &nbsp; ${niccount} &nbsp; = &nbsp; ${niceScore * niccount}`
+            scoremtext.innerHTML = ` X &nbsp; ${miscount} &nbsp; = &nbsp; ${missScore * miscount}`
+            scorettext.innerHTML = ` ${totalScore}&nbsp; 점`
+
+            switch(true){
+                case totalScore > 15000:{
+                    resultgradeimg.src = './img/gradeA.png'
+                }
+                break;
+                case totalScore > 10000:{
+                    resultgradeimg.src = './img/gradeB.png'
+                }
+                break;
+                case totalScore > 5000:{
+                    resultgradeimg.src = './img/gradeC.png'
+                }
+                break;
+                case totalScore > 3000:{
+                    resultgradeimg.src = './img/gradeD.png'
+                }
+                break;
+                default:{
+                    resultgradeimg.src = './img/gradeF.png'
+                }
+            }
+
+            for(let i=0; i < 5; i++){
+                gradedivs[i] = document.querySelector(`.grade${i+1}count`);
+                gradedivs[i].style.visibility = 'Hidden'
+            }
+            let gradecount = 0;
+            const setgrade = setInterval(() => {
+                if(gradecount < 5){
+                    gradedivs[gradecount].style.visibility = 'visible'
+                }
+                gradecount++;
+                if(gradecount >= 6){
+                    gradearea.style.visibility = 'visible'
+                    exitresultbtn.style.visibility = 'visible'
+                    clearInterval(setgrade)
+                }
+            }, 700);
+        }
+        function getSetting(){
+            getPlayTime();
+            getKeySetting();
+            document.getElementById('exitsetting').addEventListener('click', exitSetting)
+            document.getElementById('playTimeSetBtn').addEventListener('click', ()=> {
+                const num = timesetinp.value;
+                playTimeSet(num);
+            })
+            if(!isSetDisp){
+                setarea.style.display = 'flex'
+            }
+        }
+        function getPlayTime() {
+            timesetinp.value = playTime
+        }
+        function exitSetting(){
+            let newArr = [];
+            for(let i in keyArr){
+                newArr[i] = document.querySelector(`#keyindex${i}`).value
+            }
+            if(!vaildKeySetting(newArr)){
+                if(confirm('입력되지 않은 키 설정이 있습니다.<br> 창을 나가실 경우 저장되지 않습니다.')){
+                    setarea.style.display = 'none'
+                    return;
+                }
+                else{
+                    return;
+                }
+            }
+            if(!vaildKeySetting2(newArr)){
+                alert('같은 키를 2개 이상 등록할 수 없습니다.')
+                return
+            }
+            if(!vaildKeySetting3(newArr)){
+                alert('영어 대문자 또는 숫자만 등록할 수 있습니다.')
+                return
+            }
+            KeySetting(newArr);
+            setarea.style.display = 'none'
+        }
+        function playTimeSet(num){
+            if(!validTimeSet(num)){
+                alert('게임 시간 설정 시 2자리 이상의 숫자만 입력하세요.')
+                return
+            }
+            playTime = num;
+            getPlayTime();
+        }
+        function vaildKeySetting(arr){
+            for(let i in arr){
+                if(arr[i] == null || arr[i] == "")
+                return false
+            }
+            return true
+        }
+        function vaildKeySetting2(arr){
+            for(let i in arr){
+                for(let j in arr){
+                    if(arr[i] == arr[j]){
+                        if(i != j){
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        function vaildKeySetting3(arr){
+            const reg = /^[a-zA-Z0-9]{1}$/
+            for(let i in arr){
+                if(!reg.test(arr[i])) return false;
+            }
+            return true;
+        }
+        function validTimeSet(num){
+            const reg = /^[0-9]{2,4}$/
+            return reg.test(num); 
+        }
+        
+        function CreateMole(num) {
+            // 이미지 관련
+            this.name = `mole${num}`;
+            this.deImg = './img/1.png'
+            this.perImg = './img/8.png'
+            this.greImg = './img/7.png'
+            this.misImg = './img/5.png'
+            this.img = document.createElement('img')
+            // img.src에 실제 저장되는 값은 풀네임이라 일치 테스트 통과 못함
+            this.img.src = this.deImg;
+            // img.src바꿀 때 recent도 바꿔서 일치 테스트 해야함
+            this.recentImg = this.deImg;
+            this.img.width = 85
+
+            /*
+                this.y Value
+                FullDown : 50
+                FullUp : -1
+            */
+            this.y = 50;
+            this.img.style.position = 'absolute';
+            this.img.style.zIndex = 100;
+            this.img.style.top = this.y + 'px'
+            document.querySelector(`.onlymole${num[0]}`).appendChild(this.img)
+
+            // 애니메이션 관련 변수
+            this.isrunning = false;
+            this.aniFrame = null;
+            this.state = State.Idle;    // 기본 상태
+            this.stateStart = 0         // 시작 시간
+            this.mDirection = -1;       // 이동 방향 변수    
+            this.fullDown = 50;
+            this.fullUp = 8;
+            this.setTime = null;
+            this.fromY = this.y; // 이동 시작점
+            this.toY = this.y; // 이동 목표점
+
+            // 점수 UI 변수
+            this.text = document.createElement('p')
+            this.text.style.positon = 'absolute';
+            this.text.style.zIndex = 200;
+            this.text.style.visibility = 'hidden';
+            this.text.textContent = "Test"
+            this.text.className = `judge-text`
+            document.querySelector(`.onlymole${num[0]}`).appendChild(this.text)
+
+            this.hitChange = (score) => {
+                this.text.textContent = `${score.toUpperCase()}`
+                this.text.className = `judge-text ${score}`
+                this.text.style.visibility = 'visible';
+                setTimeout(() => {
+                    this.text.style.visibility = 'hidden';
+                }, 500);
+            }
+
+            // greate, normal 점수 분기 변수
+            this.normalC ;
+            this.start = () => {
+                if(this.isrunning) return;
+                console.log("두더지 Start 호출됨")
+                this.isrunning = true;
+                this.stateStart = performance.now();
+                this.aniFrame = requestAnimationFrame(this.loop)
+            }
+
+            this.stop = () => {
+                if(!this.isrunning) return;
+                console.log("두더지 Stop 호출됨")
+                this.isrunning = false;
+                if(this.aniFrame){
+                    cancelAnimationFrame(this.aniFrame);
+                    this.aniFrame = null;
+                }
+                this.y = 50;
+                this.img.style.top = this.y + 'px'
+            }
+
+            /*
+                Default UpTime : 500
+                Default HoldTime : 1000
+                Default DownTime : 300
+            */
+            this.loop = (ts) => {
+                switch(this.state){
+                    case State.Up :{
+                        if(this.recentImg !== this.deImg){
+                            this.img.src = this.deImg;
+                            this.recentImg = this.deImg;
+                        }
+                        if(this.y == this.fullUp){
+                            this.state = State.Hold;
+                            this.stateStart = ts;
+                        }
+                        else{
+                            let dur = upTime / mSpeed;
+                            let p = clamp01((ts - this.stateStart) / dur)
+                            this.y = lerp(this.fromY, this.toY, p);
+                            // this.y = mSpeed * ((ts - this.stateStart)/upTime) * this.fullUp
+                            if(this.y <= this.fullUp) this.y = this.fullUp
+                            this.img.style.top = this.y + 'px'
+                        }
+                    }
+                    break;
+                    case State.Hold :{
+                        this.normalC = (ts - this.stateStart) / (holdTime / holdControl)
+                        if((ts-this.stateStart) >= (holdTime / holdControl)){
+                            this.state = State.Down;
+                            this.stateStart = ts;
+                            this.fromY = this.y;
+                            this.toY = this.fullDown;
+                        }
+                    }
+                    break;
+                    case State.Down :{
+                        if(this.y == this.fullDown){
+                            this.setTime = null;
+                            this.state = State.Idle;
+                            this.stateStart = ts;
+                        }
+                        else{
+                            // let dur = downTime / mSpeed;
+                            // let p = clamp01((ts. this.stateStart) / dur);
+                            // this.y = lerp(this.fromY, this.toY, p);
+                            this.y = mSpeed * ((ts - this.stateStart)/downTime) * this.fullDown
+                            if(this.y >= this.fullDown) this.y = this.fullDown
+                            this.img.style.top = this.y + 'px'
+                        }
+                    }
+                    break;
+                    case State.Idle :{
+                        if(this.setTime == null){
+                            this.setTime = (Math.random() * 3000) / mSpeed
+                            this.fromY = this.y
+                            this.toY = this.fullUp
+                        }
+                        if(this.setTime < (ts - this.stateStart)){
+                            this.state = State.Up;
+                            this.stateStart = ts;
+                        }
+                    }
+                    break;
+                }
+                this.aniFrame = requestAnimationFrame(this.loop);
+            }
+        }
+        function CreateHole(num) {
+            this.name = `hole${num}`;
+            this.img = document.createElement('img')
+            this.img.src = './img/hole.png';
+            this.img.width = 120
+            this.y = 0;
+
+            this.img.style.position = 'absolute';
+            this.img.style.zIndex = 10;
+            this.img.style.bottom = this.y + 'px'
+            document.querySelector(`.molehole${num[0]}`).appendChild(this.img)
+        }
+        function init(){
+
+            // 두더지 세팅
+            for(let m = 0; m < moleArr.length; m++){
+                moleArr[m] = new CreateMole([m]);
+            }
+            for(let h = 0; h < holeArr.length; h++){
+                holeArr[h] = new CreateHole([h]);
+            }
+            
+            // 기타
+            stayarea = document.querySelector('.stayarea');
+            gamescore = document.querySelector('#gamescore');
+            nowspeedtext = document.querySelector('#nowspeed');
+            speedarea = document.querySelector('.speedarea');
+            
+            // 결과 점수 표시
+            resultarea = document.querySelector('.resultarea')
+            scoreptext = document.querySelector('#scoreptext')
+            scoregtext = document.querySelector('#scoregtext')
+            scorentext = document.querySelector('#scorentext')
+            scoremtext = document.querySelector('#scoremtext')
+            scorettext = document.querySelector('#scorettext')
+            exitresultbtn = document.querySelector('#resultok');
+            gradearea = document.querySelector('.resultgrade')
+            resultgradeimg = document.querySelector('#resultimg')
+
+            // DefaultKeySetting
+            notation = document.querySelector('#defaultkeynotation');
+            keyArr = ['Q','W','E','A','S','Z','X','C'];
+            KeySetting(keyArr);
+
+            // SettingDisplay
+            setarea = document.querySelector('.settingarea');
+            otherofgamearea = document.querySelector('.otherofgamearea');
+            scorearea = document.querySelector('.scorearea');
+            resultarea.style.display = 'none';
+            setarea.style.display = 'none';
+            scorearea.style.visibility = 'Hidden';
+            otherofgamearea.style.visibility = 'Hidden';
+
+            isSetDisp = false;
+
+            // 게임 기본 설정
+            isGameStart = false;
+            timesetinp = document.getElementById('playTimeSet');
+            playTime = 120;
+            playTimeSet(playTime);
+
+            // keyEvent 설정
+            for(let i in keyArr){
+                const input = document.querySelector(`#keyindex${i}`);
+                input.addEventListener('input', () => {
+                    input.value = input.value.toUpperCase();
+                });
+            }
+            document.getElementById('startBtn').addEventListener('click', gameStart)
+            document.getElementById('settingBtn').addEventListener('click', getSetting)
+            exitresultbtn.addEventListener('click', () => {
+                resultarea.style.display = 'none';
+                setarea.style.display = 'none';
+                scorearea.style.visibility = 'Hidden';
+                otherofgamearea.style.visibility = 'Hidden';
+                stayarea.style.display = 'flex'
+            })
+
+            // 시작 key binding
+            window.addEventListener('keydown', (event) => {
+                if(event.key === 'Enter'){
+                    gameStart();
+                }
+                else{
+                    console.log(event.key)
+                }
+            })
+            
+        }
+        function KeySetting(arr){
+            if(arr.length < 8){
+                alert(`key 등록 에러 : ${arr.length}개 등록됨`);
+                return;
+            }
+            else{
+                notation.textContent ="";
+                notation.textContent += "현재 키 : "
+                for(let i in arr){
+                    if(i == arr.length - 1) notation.textContent += `${arr[i].toUpperCase()}`;
+                    else notation.textContent += `${arr[i].toUpperCase()}, `;
+                }
+                keyArr = arr;
+                getKeySetting();
+            }
+        }
+        function getKeySetting(){
+            for(let i in keyArr){
+                document.querySelector(`#keyindex${i}`).value = keyArr[i];
+            }
+        }
+        function handleKeyDown(e){
+
+            if(e.key === ' '){
+                e.preventDefault();
+                giveupsign = true;
+                return;
+            } 
+
+            const bkey = e.key.toUpperCase()
+            const skey = e.key.toLowerCase()
+            if (keyArr.includes(bkey) || keyArr.includes(skey)) {
+                checkmole(bkey);
+                return;
+            }
+        }
+    </script>
+</body>
+</html>
