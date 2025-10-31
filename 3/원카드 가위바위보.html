@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>원카드 가위바위보</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="fullscreen">  <!--전체화면-->
+
+<!-- badeeTable 영역 -->
+        <div class="charaTable">
+                <div class="charaPanel badee animated-neon">badeePanel</div>
+                <div class="deckTable badeeTable">
+                    <div id="bHand"></div>   <!--카드들-->
+                </div>
+        </div>
+<!--badeeTable 영역 끝-->
+
+<!--communityTable 영역-->
+        <div class="communityTable animated-neon">
+                <h3>Tip:상대보다 카드가 적으면 DRAW 를 의도해보세요<br>
+                    상대보다 카드가 많으면 LOSE 를 의도해보세요<br><br>
+                    패가 0이 되면 승리입니다!</h3>
+                <div class="community"></div>
+        </div>
+<!--communityTable 영역 끝-->
+
+<!--goodeeTable 영역-->
+        <div class="charaTable">
+                <div class="deckTable goodeeTable">
+                    <div id="gHand"></div>   <!--카드들-->
+                </div>
+                <div class="charaPanel goodee animated-neon">goodiePanel</div>
+        </div>
+<!--goodeeTable 영역 끝-->
+
+    </div>  <!--전체화면 끝-->
+    
+    <script src="./gameCore.js"></script>
+    <script src="./gameEngine.js"></script>
+    <script src="./helper.js"></script>
+    <script src="./enemyLogic.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', init);
+
+        async function init() {
+            charaPrepare(); //구디배디 생성
+            cardPrepare();  //카드 9장 생성
+            prepareGraveArea(); //묘지 생성
+            wireUI();       //애니메이션 기능
+            prepareEnemyCounter(); //enemy카드 소지 계산
+            updateEnemyCount();
+            updatePlayerCount();
+        }
+
+        function wireUI() {     //애니메이션 기능
+            enableDragAndDrop();
+         //   enableHoverEffects();
+         //   enableDropHighlight();
+            ensureGoButton();       
+            updateGoVisibility();
+        }
+    
+    
+
+
+
+
+        //치트코드
+        document.addEventListener('keydown', (e)=>{
+            if (!e.ctrlKey) return;
+
+            const comm = document.querySelector('.community');
+            const playerCard = getCommunityPlayerCard();
+            const enemyCard = getCommunityEnemyCard();
+
+            if(!comm) return;
+
+            switch (e.key.toLowerCase()){
+                case '1' :
+                    console.log('Cheat:Player Win')
+                    checkWinnerOverride('goodeeWin');
+                    break;
+                case '2' :
+                    console.log('Cheat:No Win');
+                    checkWinnerOverride('noWin');
+                    break;
+                case '3' :
+                    console.log('Cheat:Enemy Win');
+                    checkWinnerOverride('badeeWin');
+                    break;
+                default:
+                    return;
+            }
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        async function checkWinnerOverride(forcedResult){
+            await showFinalResult(forcedResult);
+        }
+    </script>
+</body>
+</html>
