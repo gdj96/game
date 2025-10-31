@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>숫자 카드게임(수정본)</title>
+<style>
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #ffffff;
+  background-image: url('./game-image/bg-img/cat.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: background-image 0.6s ease-in-out;
+}
+
+#game {
+  margin-top: 50px;
+}
+
+h2 {
+  color: #ffffff;
+  font-size: 60px;
+  text-shadow: 0 0 8px #222120, 0 0 15px #9c958e;
+}
+
+#round-result {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 8px #222120, 0 0 15px #9c958e;
+}
+#showrResult {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 3px rgba(223, 218, 193, 0.7);
+  letter-spacing: 1px;
+  font-family: 'GmarketSansBold', 'Arial', sans-serif; 
+  margin-top: 20px;
+}
+
+
+#player-wins {
+  color: #4dd0e1; 
+  font-weight: 900;
+}
+
+#computer-wins {
+  color: #ff5252; 
+  font-weight: 900;
+}
+
+p, span {
+  color: white;
+
+}
+#player-hand {
+  position: fixed;
+  bottom: 2vh;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1vw;
+  width: 100%;
+}
+
+#player-cards img {
+  width: 18vw;
+  max-width: 190px;
+  height: auto;
+  cursor: pointer;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
+@media(max-width:1440px){
+  #player-cards img {
+    width: 11vw;
+  }
+}
+
+#player-cards img:hover {
+  transform: scale(1.2);
+}
+
+#battlefield {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  object-fit: cover;
+  margin: 10px;
+  margin-right: 140px;
+  height: 130px;
+}
+
+.card-slot {
+  width: 150px;
+  height: 130px;
+  margin: 0 50px;
+  position: relative;
+}
+
+.card-slot img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transition: transform 0.5s, top 0.5s, left 0.5s;
+}
+
+button {
+  background-color: #ffffffcc;
+  width: 140px;
+  border: none;
+  margin: 5px;
+  padding: 15px 30px;
+  font-size: 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+}
+
+button:hover {
+  background-color: #ffde59;
+  transform: scale(1.1);
+}
+#game-result{
+  font-size: 50px;
+  font-weight: bold;
+  color: #ffe600;                 
+  text-shadow: 0 0 8px #e6bd4d, 0 0 15px #e69436;
+  letter-spacing: 3px;
+}
+</style>
+</head>
+<body>
+
+<div id="game">
+  <div id="intro">  <!--게임 시작 intro부분 start 버튼 클릭시 사라짐-->
+    <h2 id="game-title">숫자 카드 게임</h2>
+    <button id="start-btn">게임 시작</button>
+  </div>
+
+  <div id="status" style="display:none;"> <!--스테이터스 부분 start 버튼 클릭시 보여짐-->
+    <h2>라운드: <span id="round">1</span></h2>  <!--라운드 전광판-->
+
+    <div id="player-hand">          <!--플레이어 카드 부분-->
+      <div id="player-cards"></div> <!--css를 이용해 player-cards에 img 를hover할 때 scale을(1.2)커지게 함-->
+    </div>
+
+    <div id="battlefield" >      <!--배틀필드 부분-->
+      <div class="card-slot">
+        <img id="player-choice-img">
+      </div>
+      <div class="card-slot">
+        <img id="computer-choice-img">
+      </div>
+    </div>
+
+    <p> <span id="round-result"></span></p>  <!--라운드 결과-->
+    <p id="showrResult">승리: 플레이어 <span id="player-wins">0</span> - 고양이 <span id="computer-wins">0</span></p>
+    <p id="game-result"></p>
+    <button id="result-btn" style="display:none;">결과 보기</button>
+    <button id="restart-btn" style="display:none;">재시작</button>
+  </div>
+</div>
+
+<script>    
+const bgImg =[                                
+  './game-image/bg-img/cat.png',                     //이미지 미리 로드해두는 과정
+  './game-image/bg-img/catCry.png',                  
+  './game-image/bg-img/catLose.png',
+  './game-image/bg-img/catSmile2.png',       
+  './game-image/bg-img/catWin.png'
+]
+const preloaded = bgImg.map(src => { 
+  const img = new Image();
+  img.src = src;
+  return img;
+});
+
+
+let playerCards, computerCards, playerWins, computerWins, round, gameOver;
+
+const cardImages = {  
+  1: './game-image/number/number1.png',
+  2: './game-image/number/number2.png',           //객체 생성 후 키들의 이미지 대입
+  3: './game-image/number/number3.png',
+  4: './game-image/number/number4.png',
+  5: './game-image/number/number5.png',
+  6: './game-image/number/number6.png',
+  7: './game-image/number/number7.png',
+  8: './game-image/number/number8.png',
+  9: './game-image/number/number9.png'
+};
+
+
+function initGame() {
+  playerCards = [1,2,3,4,5,6,7,8,9];                         //배열 생성 및 초기화를 위한 초기값
+  computerCards = [1,2,3,4,5,6,7,8,9];
+  playerWins = 0;
+  computerWins = 0;
+  round = 1;
+  resultAlert='';
+  gameOver = false;
+
+  document.getElementById('round').textContent = round;
+  document.getElementById('player-wins').textContent = playerWins;
+  document.getElementById('computer-wins').textContent = computerWins;
+  document.getElementById('game-result').textContent = '';
+  document.getElementById('round-result').textContent = '';
+  document.getElementById('player-choice-img').src = './game-image/number/numberback.png'
+  document.getElementById('computer-choice-img').src = './game-image/number/numberback.png'
+
+
+                                        
+  document.body.style.backgroundImage = `url('${preloaded[0].src}')`;       
+  document.getElementById('player-cards').innerHTML = renderPlayerCards(); //카드 이미지 생성을 위한 renderPlayerCards() 함수 호출
+}
+
+function renderPlayerCards() {  //playCards  안에있는 1부터 9의 배열을 .map()메서드를 이용해 배열의 요소들을 순환하며 이미지 생성
+  return playerCards.map(c =>
+    `<img src="${cardImages[c]}" onclick="playRound(${c})">` //클릭시 라운드 진행을 위해  onclick="playRound(${c}) 함수 호출
+  ).join('');                                                //join을 통해 문자열로 합침(,가 붙는걸 방지)
+}
+
+
+function playRound(playerCard) {
+  if (gameOver) return; //gameover 값이 true면 리턴 
+  
+
+  playerCards = playerCards.filter(c => c !== playerCard);  //플레이어 카드는 골랐던 값과 같지 않은 값들로 걸러서 playCards에 새로 저장
+  document.getElementById('player-cards').innerHTML = renderPlayerCards(); //걸러진 값들로 카드 이미지 렌더링 함수호출
+
+  const computerCard = computerChoose();         //컴퓨터 카드 선택 함수 호출 
+
+  animateBattle(playerCard, computerCard, () => {    //카드 비교 점수,승패 로직 비동기 예약 함수,callback을 이용한 카드스롯이동&애니메이션 비동기 처리
+    let roundResult = '';
+    
+
+    if (playerCard > computerCard) {                          //라운드 승패 로직
+      playerWins++;
+      roundResult = '플레이어 승!';
+      document.body.style.backgroundImage = `url('${preloaded[1].src}')`;;
+    } else if (playerCard < computerCard) {
+      computerWins++;
+      roundResult = '고양이 승!';
+      document.body.style.backgroundImage = `url('${preloaded[3].src}')`;
+    } else {
+      roundResult = '무승부!';
+      document.body.style.backgroundImage = `url('${preloaded[0].src}')`;
+    }
+
+    document.getElementById('round-result').textContent = roundResult;
+    document.getElementById('player-wins').textContent = playerWins;
+    document.getElementById('computer-wins').textContent = computerWins;
+
+    resultAlert+= `${round}라운드 결과: 플레이어:${playerCard} -고양이:${computerCard} =>${roundResult}\n`;
+    
+    
+    
+
+    if (playerWins === 4 || computerWins === 4 || round >= 8) {         //최종 결과 로직
+      gameOver = true;
+      let finalResult = '';
+      if (playerWins > computerWins) {
+        finalResult = '플레이어 최종 승리!';
+        document.body.style.backgroundImage = `url('${preloaded[2].src}')`;
+      } else if (playerWins < computerWins) {
+        finalResult = '고양이 최종 승리!';
+        document.body.style.backgroundImage = `url('${preloaded[4].src}')`;
+      } else {
+        finalResult = '최종 무승부!';
+        document.body.style.backgroundImage = `url('${preloaded[0].src}')`;
+      }
+      document.getElementById('game-result').textContent = finalResult;
+      resultAlert += `\n ${finalResult}`;
+      document.getElementById('restart-btn').style.display = 'inline-block';
+      document.getElementById('result-btn').style.display = 'inline-block';
+      return;
+
+    }
+    round++;
+    document.getElementById('round').textContent = round;
+  });
+  
+}
+
+function computerChoose() {                          //컴퓨터 카드에 배열을 랜덤으로 섞은 후 걸러진 값으로 새로 배열 저장
+  const randomIndex = Math.floor(Math.random() * computerCards.length);
+  const choice = computerCards[randomIndex];
+  computerCards = computerCards.filter(c => c !== choice);
+  return choice;
+}
+
+function animateBattle(playerCard, computerCard, callback) {      //카드 슬롯 이동 후 애니메이션 효과 
+  const playerImg = document.getElementById('player-choice-img');
+  const computerImg = document.getElementById('computer-choice-img');
+
+  playerImg.src = cardImages[playerCard];
+  //computerImg.src = cardImages[computerCard];
+  computerImg.src = './game-image/number/numberback.png';
+
+  playerImg.style.transform = 'translateY(-20px) scale(1.6)'; //y축을 -20감소 시켜 위로 이동 ,scale을 1.6으로 설정해 커지게 설정
+  computerImg.style.transform = 'translateY(-20px) scale(1.6)';
+
+  setTimeout(() => {                         //setTimeout() 비동기 예약 함수를 이용해 크기 원래대로 변환 및 callback
+    playerImg.style.transform = 'scale(1)'; //0.8초 뒤에는  style.transform에는 scale을 1로 변환값만 남도록 설정
+    computerImg.style.transform = 'scale(1)';
+    callback();
+  }, 800);
+}
+
+
+
+//Start 버튼 클릭
+document.getElementById('start-btn').addEventListener('click', () => {
+  document.getElementById('intro').style.display = 'none'; //Start 버튼 클릭시 인트로 style.display를 none으로 설정해 숨김
+  document.getElementById('status').style.display = 'block'; //Start 버튼 클릭시 스테이터스 style.display를 블록으로 설정해 보여짐
+  initGame();
+  
+});
+
+//Restart 버튼 클릭
+document.getElementById('restart-btn').addEventListener('click', () => {
+  initGame();
+  document.getElementById('restart-btn').style.display = 'none';
+  document.getElementById('result-btn').style.display = 'none';
+});
+document.getElementById('result-btn').addEventListener('click',()=>{
+  alert(resultAlert);
+})
+</script>
+
+</body>
+</html>
