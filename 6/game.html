@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Move hamster</title>
+    <style>
+    body { 
+        display: flex;
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        margin: 0; 
+        padding: 0;
+    }
+    .body_wrap {
+        width: 600px;
+        height: 600px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 10%;
+        align-items: center;
+        background-image: url('img/canvas.jpg');
+        background-repeat: repeat;
+    }
+    #titleScreen { 
+        width: 500px;
+        margin-top: 80px;
+        padding: 20px; 
+        text-align: center;
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        border-radius: 25px;
+    }
+    #titleScreen > h2 {
+        color: rgb(99, 73, 4);
+        border: 2px wheat;
+        background-color: rgb(224, 190, 127);
+        border-radius: 9999px;
+        font-size: 50px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    #titleScreen > h4 {
+        font-size: 25px;
+        font-weight: 500;
+        color:white;
+    }
+    #startButton {
+        background-color: rgb(104, 64, 4);
+        color: white;
+        border-radius: 60px;
+        padding: 20px 40px;
+        font-weight: 700;
+        font-size: 40px;
+        border: 5px solid #FFFFFF;
+        outline: none;
+        justify-content: center;
+        margin-top: 20px;
+
+    }
+    .board_wrap { display: flex; }
+    .board {
+        width: 400px;
+        height: 100px;
+        display: none;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 20px;
+        box-sizing: border-box;
+        background-color: #fcf8e3;
+        border: 4px solid #8B4513;
+        border-radius: 20px;
+    }
+    #score {
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }   
+    .seed {
+         display: flex;
+         width: 50px;
+         height: 50px;
+         justify-content: center;
+         align-items: center;
+    }
+    #score .seed img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        position: static;
+        gap: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    #timer {
+        width: 100%;
+        color: #8B4513;
+        font-size: 20px;
+        text-align: center;
+        font-weight: 850px;
+        text-shadow: 1px 1px 1px #FFF;
+    }   
+    #level {
+        position: relative;  
+        display: flex;
+        flex-direction: column;
+        margin-top: 16px;
+        margin-left: 15px;
+        gap: 8px;
+        z-index: 10;
+        display: none;
+    }
+    .selectBtn {
+        width: 45px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #A0522D;;
+        color: white;
+        font-weight: bold;
+        border: 4px solid #8B4513;
+        outline: none;
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.4);
+    }
+    .selectBtn:hover { background-color: #5e3a06; }   
+    #canvas {
+        border: 3px solid rgb(237, 203, 139);
+        width: 500px;
+        height: 500px;
+        position: relative;
+        border-radius: 10%;
+        background-color: white;
+        display: none;
+    }
+    #canvas img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        position: absolute;
+        z-index: 1;
+    }   
+    #player {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        position: absolute;
+        border: 0;
+        background-color: white;
+        z-index: 2;
+    }   
+    #result {
+        display: flex;
+        flex-direction: column;
+        display: none;
+        position: fixed;
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%;
+        justify-content: center; 
+        align-items: center;
+        z-index: 20;
+    }
+    #result > div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        border: 8px solid #FFD700;
+        background-color: #fcf8e3;
+        padding: 40px 60px;
+        border-radius: 25px;
+        text-align: center;
+    }
+    #result > div > p {
+        font-size: 25px;
+        font-weight: 700;
+        color: #8B4513;
+        line-height: 1.3;
+    }
+    #restartBtn {
+        background-color: #d9730d;
+        color: white;
+        font-weight: 800;
+        font-size: 24px;
+        padding: 12px 30px;
+        border-radius: 9999px;
+        border: 3px solid #E0E0E0;
+        outline: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+    </style>
+</head>
+<body>
+<div class="body_wrap">
+    <div id="titleScreen">
+        <h2>햄스터의 씨앗 찾기</h2>
+        <button id="startButton" onclick="startGame()">시작하기</button>
+        <h4>방향키를 사용합니다</h4>
+        <h4>버튼을 눌러 시작</h4>
+    </div>
+
+    <div class="board_wrap">
+        <div class="board">
+            <div id="timer"></div>
+            <div id="score"></div>
+        </div>
+        <div id="level">
+            <button  class="selectBtn" id="level1" onclick="setLevel(1)">1</button>
+            <button  class="selectBtn" id="level2" onclick="setLevel(2)">2</button>
+        </div>
+    </div>
+    <div id="canvas">
+        <div id="player"><img src='img/hamster.png' alt="player"></div>
+        <div id='result'></div>
+    </div>
+</div>
+
+<script>
+    const total = 5; // 목표 개수
+    const STEP = 10; // 공의 이동거리
+    const canvasWidth = 500;
+    const canvasHeight = 500;
+    const currentLeft = 150; // 초기 x 위치
+    const currentTop = 150; // 초기 y 위치
+    const ELEMENT_SIZE = 50 // 햄스터, 씨앗 크기
+    const ELEMENT_SPEED = 3; // 움직임 최대 범위
+    const TIME_LIMIT = 20; 
+
+    let currentTime = TIME_LIMIT;
+    let isGameOver = false;
+    let level = 1;
+    let score = 0;
+    let timerInterval;
+
+    function position(limit){ return Math.floor(Math.random() * limit) }
+    function randomSpeed(maxSpeed) { return Math.random() * maxSpeed - Math.random() * maxSpeed; }
+    function Player(currentLeft, currentTop, goalObj){ 
+        this.element = document.querySelector("#player")
+        this.x = currentLeft;
+        this.y = currentTop;
+        this.goal = goalObj;
+
+        this.element.style.left = `${this.x}px`;
+        this.element.style.top = `${this.y}px`;
+
+        this.checkCollisions = function(){
+            const size= ELEMENT_SIZE - 30;
+            if ( this.x < this.goal.x + size &&  this.x + size > this.goal.x &&
+                // 햄스터의 왼쪽이 씨앗 오른쪽에 접촉, 오른쪽이 씨앗 왼쪽에 접촉
+                 this.y < this.goal.y + size && this.y + size > this.goal.y ) {
+                // 햄스터 위쪽이 씨앗 아래쪽에 접촉, 아래쪽이 씨앗 위쪽에 접촉
+
+                score++;
+                board();
+                checkScore(score);
+                this.goal.reset();
+        
+                return true; 
+            }
+            return false;
+        }
+
+        this.handleKeydown = (event) => {
+            event.preventDefault();
+            let key = event.key;
+            let moved = false; 
+            let newX = this.x;
+            let newY = this.y;
+
+            if (isGameOver) return;
+            switch (key) {
+                case 'ArrowLeft': newX -= STEP; moved = true; break;
+                case 'ArrowRight': newX += STEP; moved = true; break;
+                case 'ArrowUp': newY -= STEP; moved = true; break;
+                case 'ArrowDown': newY += STEP; moved = true; break;
+                default: return;
+            }
+
+            if(newX < 0){ newX = 0; } 
+                else if(newX > canvasWidth - ELEMENT_SIZE){ newX = canvasWidth - ELEMENT_SIZE; }
+            if(newY < 0){ newY = 0; } 
+                else if(newY > canvasHeight - ELEMENT_SIZE){ newY = canvasHeight - ELEMENT_SIZE; }
+
+            this.x = newX;
+            this.y = newY;
+
+            this.element.style.left = `${this.x}px`; 
+            this.element.style.top = `${this.y}px`;
+
+            if(moved) { this.checkCollisions(); }
+          }
+          this.move = ()=>{ document.addEventListener('keydown', this.handleKeydown); }
+    }
+
+    function Goal(level){
+        const canvasArea = document.querySelector("#canvas")
+        this.element = document.createElement("img");
+        this.element.setAttribute('src', 'img/seed.png')  
+        canvasArea.appendChild(this.element)
+
+        this.moveInterval = null;
+        this.level = level;
+        this.x = 0;
+        this.y = 0;
+        this.vX = 0; 
+        this.vY = 0;
+  
+        this.startMove = function(){
+            if (this.moveInterval) { clearInterval(this.moveInterval); }
+            
+            this.vX = randomSpeed(ELEMENT_SPEED); 
+            this.vY = randomSpeed(ELEMENT_SPEED);
+
+            this.moveInterval = setInterval(() => {
+                if(this.x <= 0 || this.x >= canvasWidth - ELEMENT_SIZE) { this.vX *= -1; } 
+                if(this.y <= 0 || this.y >= canvasHeight - ELEMENT_SIZE) { this.vY *= -1; } 
+                
+                this.x += this.vX; 
+                this.y += this.vY; 
+                
+                this.element.style.left = this.x + 'px'; 
+                this.element.style.top = this.y + 'px'; 
+            }, 1000/60);
+        }  
+        this.reset = function(){
+            this.x = position(canvasWidth - ELEMENT_SIZE);
+            this.y = position(canvasHeight - ELEMENT_SIZE);
+            this.element.style.left = this.x  + 'px'
+            this.element.style.top = this.y + 'px'
+
+            if (this.level == 2) { this.startMove(); } 
+            else if (this.moveInterval) { clearInterval(this.moveInterval); }
+        }
+        this.reset();
+    }
+
+    function startGame() {
+        score = 0;
+        document.getElementById('titleScreen').style.display = 'none';
+        document.querySelector('.board').style.display = 'flex';
+        document.getElementById('level').style.display = 'flex';
+        document.getElementById('canvas').style.display = 'block';
+
+        goal = new Goal(level);
+        player = new Player(currentLeft, currentTop, goal);
+        
+        startTimer();
+        player.move();
+        board();
+    }
+
+    function startTimer() {
+        currentTime = TIME_LIMIT
+        if(timerInterval){ clearInterval(timerInterval); } 
+
+        timerInterval = setInterval( () => {  
+            if (isGameOver) {
+                clearInterval(timerInterval);
+                return;
+            }
+
+            currentTime--;
+            board();
+
+            if(currentTime <= 0){
+                clearInterval(timerInterval);
+                gameOver("Game over");
+            }
+        }, 1000);
+    }
+
+    function board(){
+    const divScore = document.getElementById('score');
+      divScore.innerHTML = '';
+            for (let i = 1; i <= total; i++) {
+                let imageUrl = '';
+                if (i <= score) { imageUrl = 'img/seed.png'; }
+                else { imageUrl = 'img/seed2.png'; }
+
+                divScore.innerHTML += `<div class="seed"><img src='${imageUrl}'></div>`;
+            }
+            const divTimer = document.getElementById('timer');
+            divTimer.innerHTML = `남은 시간: ${currentTime}초`;
+    }
+    function checkScore(score){ if(score >= total) gameOver("Game clear!"); }
+    function gameOver(message) {
+        if (isGameOver) return;
+        isGameOver = true;
+        clearInterval(timerInterval); 
+
+        const divResult = document.getElementById('result');
+        divResult.style.display = 'flex';
+        divResult.innerHTML =  `<div><p>${message}</p>
+            <input type='button' id='restartBtn' value='다시하기' onclick='location.reload();'></div>`;
+    }
+    function setLevel(selectBtn_value) { 
+        level = selectBtn_value;
+        startTimer();  
+        alert(`현재 난이도는 ${level} 입니다.`);
+        if (level == 2) {
+            goal.level = selectBtn_value;     
+            goal.reset();     
+        }
+    }
+</script>
+</body>
+</html>
