@@ -1,0 +1,93 @@
+div, p {
+  /*   border: 1px solid rgb(255, 0, 0);    */
+}
+
+/* 백그라운드 관련 */
+.main {
+    background-image: url("../img/normar.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+}
+
+/*전체 컨테이너*/
+div.container {
+    width: 60%;
+    height: 700px;
+    background-color: rgb(97, 97, 97);
+    box-shadow: 0 0 5px 1px black;
+    background-position: center;
+    margin: 0 auto;
+    text-align: center;
+}
+div.Tetriswrap{
+    display: flex;
+    margin: 0 auto;
+    gap: 3%;
+}
+/*테트리스 메인 컨테이너*/
+div.MainContainer{
+     width: 450px;
+    height: 580px;  
+    margin-left:6%;
+    background-color: rgb(41, 40, 40);
+    box-shadow: 0 0 5px 1px black;
+
+}
+
+div.MainContainerIn{
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+}
+/*테트리스 서브 컨테이너*/
+div.ServeContainer{
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    height: 580px;
+    margin-right:5%;
+    background-color: rgb(184, 184, 184);
+    box-shadow: 0 0 10px 1px black;
+}
+
+.ServeContainer p{
+    margin: 5;
+    padding: 5;
+}
+
+/* 스코어 */
+.ServeContainerScore{
+    font-family: fantasy;
+    font-size: 30px;
+    text-align: center;
+    color: rgb(255, 247, 236);
+    letter-spacing: 10px;
+}
+/* 타이머 */
+.ServeContainerTimer{
+    font-family: fantasy;
+    font-size: 50px;
+    text-align: center;
+    color: rgb(255, 247, 236);
+    margin-top: 5%;
+    letter-spacing: 10px;
+}
+
+/*다음블록 표시판 컨테이너*/
+div.NBwrap{
+    width: 200px;
+    height: 200px;
+     background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 10px 1px black;
+    margin: 0 auto;
+    margin-top: 30px;
+}
+
+div.nextBlockContainer{
+   
+    margin-top: 30%;
+    margin-left: 40%;
+
+}

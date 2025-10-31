@@ -1,0 +1,82 @@
+/* div 관련 */
+div {
+   /* border: 1px solid red;     */
+    width: 100%;
+
+}
+
+.maindiv {
+    margin-top: 20%;
+    margin-bottom: 30%;
+}
+
+/* 글자 관련 */
+h1 {
+    font-family: fantasy;
+    font-size: 70px;
+    color: rgb(255, 247, 236);
+    text-shadow: 8px 8px rgb(42, 42, 42);
+    letter-spacing: 10px;
+}
+
+h2 {
+    color: rgb(255, 247, 236);
+    font-family: fantasy;
+    font-size: 30px;
+    text-shadow: 2px 2px rgb(42, 42, 42);
+}
+
+p {
+    color: rgb(255, 247, 236);
+    font-family: fantasy;
+    font-size: 20px;
+    text-shadow: 2px 1px rgb(42, 42, 42);
+}
+
+/* 백그라운드 관련 */
+.main {
+    text-align: center;
+    margin: 5%;
+    background-image: url("../img/mainimg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+}
+
+/* 버튼 관련 */
+a.btn:link, a.btn:visited {
+    /*버튼을 누르지 않았을때*/
+    background-color: aliceblue;
+    color: black;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    padding: 50px 80px;
+    border: 2px solid black;
+    font-family: fantasy;
+    font-size: 40px;
+}
+
+a.btn:hover,
+a.btn:active {
+    background-color: aquamarine;
+}
+
+a.btn2:link, a.btn2:visited {
+    /*버튼을 누르지 않았을때*/
+    background-color: aliceblue;
+    color: black;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    padding: 40px 60px;
+    border: 2px solid black;
+    font-family: fantasy;
+    font-size: 30px;
+}
+
+a.btn2:hover,
+a.btn2:active {
+    background-color: aquamarine;
+}

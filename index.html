@@ -29,16 +29,21 @@
 </ul>
 
 <script>
-    let pdfs = ["JS게임 발표자료(고희권).pdf","gameProject발표.pdf","gd96백시현 원카드 가위바위보.pdf","과정 안내서.pdf","웹 게임 만들기 실습PDF_윤재훈.pdf",
+    let pdfs = ["JS게임 발표자료(고희권).pdf","gameProject발표.pdf","gd96백시현 원카드 가위바위보.pdf","GD 10.31 게임만들기 프로젝트 (GD 신정근).pdf","웹 게임 만들기 실습PDF_윤재훈.pdf",
                 "Javascript_임욱.pdf","두더지게임.pdf","tetris.pdf","슬라이드퍼즐_최준희.pdf","최지윤.pdf"];
-    let htmls = ["1_gameStart.html","game.html","원카드 가위바위보.html","image.html","실습01_게임만들기.html",
+    let htmls = ["1_gameStart.html","game.html","원카드 가위바위보.html","Main.html","실습01_게임만들기.html",
                  "game.html","PJ.game.html","tetris.html","슬라이드퍼즐_최종.html","Dobble.html"];
     function pdfopen(i) {
         let github = "https://gdj96.github.io/game/pdf/" + pdfs[i];
         window.open(github,'','');
     }
     function linkopen(i) {
-        let github = "https://gdj96.github.io/game/" +(i+1)+ "/"+htmls[i];
+      let github = "";
+      if (i==9) {
+        github = "https://gdj96.github.io/game/" +(i+1)+ "/project_tetris/html/"+htmls[i];
+      } else {
+        github = "https://gdj96.github.io/game/" +(i+1)+ "/"+htmls[i];
+      }
         window.open(github,'','');
     }
 </script>    

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeTris</title>
+    <link href="../css/game.css" rel="stylesheet" type="text/css">
+</head>
+
+<body class="main">
+    <div class="container">
+        <h1 id = "check">난이도 Hard</h1>
+        <div class="Tetriswrap">
+            <div class="MainContainer">
+                <div class="MainContainerIn"></div>
+            </div>
+            <div class="ServeContainer">
+                <div class="NBwrap">
+                    <div class="nextBlockContainer"></div>
+                </div>
+                <p>다음 블록</p>
+                <div class="ServeContainerScore">점수 : 0</div>
+                <div id="Timer" class="ServeContainerTimer">00:00</div>
+                <div style="margin-top: 10%;">조작키
+                    <p>블록 이동 : ←, → </p>
+                    <p>블록 회전: ↑</p>
+                    <p>블록 빠르게 떨어트리기 : ↓ </p>
+                </div>
+            </div>
+        </div>
+        <script src="../JavaScript/Timer.js"></script>
+        <script src="../JavaScript/Tetris_hard.js"></script>
+</body>
+
+</html>
